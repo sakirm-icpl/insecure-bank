@@ -1,25 +1,10 @@
-pipeline {
-    agent any
-    tools {
-        jdk 'JDK'
-    }
-    stages {
-        stage('SCM') {
-            steps {
-                // Check out the source code from your Git repository
-                checkout scm
+stage('SonarQube Analysis') {
+    steps {
+        script {
+            def mvn = tool 'Default Maven'
+            withSonarQubeEnv() {
+                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=test -Dsonar.projectName='test'"
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                // Use the default Maven tool
-                def mvn = tool 'Default Maven'
-                // Perform SonarQube analysis
-                withSonarQubeEnv() {
-                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=test -Dsonar.projectName='test'"
-                }
-            }
-        }
-        // You can add additional stages here
     }
 }
