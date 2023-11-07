@@ -1,24 +1,11 @@
 node {
-    stage('Checkout') {
-        // Checkout your code from your version control system (e.g., Git)
+  stage('SCM') {
+    checkout scm
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "${scannerHome}/bin/sonar-scanner"
     }
-    
-    stage('Build') {
-        // Build your Java application (e.g., using Maven)
-    }
-    
-    stage('Scan with SonarQube') {
-        withSonarQubeEnv('SonarQube servers') {
-            sh 'mvn sonar:sonar'
-        }
-    }
-    
-    stage('Publish SonarQube results') {
-        // Publish SonarQube results to Jenkins
-        publishIssues issues:[],
-                      serverConfig: [
-                          installationName: 'SonarQube servers',
-                          serverUrl: 'http://172.17.16.68'
-                      ]
-    }
+  }
 }
