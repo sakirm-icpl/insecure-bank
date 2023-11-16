@@ -1,6 +1,3 @@
-#!/bin/bash
-
-# Function to check and install a prerequisite
 check_and_install() {
     if ! command -v "$1" &> /dev/null; then
         echo "$1 is not installed. Installing..."
@@ -32,7 +29,7 @@ if ! pip3 show xlsxwriter &> /dev/null; then
 fi
 
 # Specify the input JSON file path
-input_json="/home/ubuntu/jfrog_package/my.json"
+input_json="/var/lib/jenkins/workspace/mobsf/app.json"
 
 # Output Excel file
 output_excel="${input_json%.json}.xlsx"
