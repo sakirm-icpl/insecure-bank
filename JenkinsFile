@@ -1,21 +1,23 @@
 stages {
-        stage('SCM') {
-            steps {
-                checkout scm
-            }
+    stage('SCM') {
+        steps {
+            checkout scm
         }
-stage('SonarQube Analysis') {
-            steps {
-                script {
-                    try {
-                        def scannerHome = tool 'SonarQubeScanner'
-                        withSonarQubeEnv() {
-                            sh "${scannerHome}/bin/sonar-scanner"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'UNSTABLE'
-                        error("SonarQube analysis failed: ${e.message}")
+    }
+
+    stage('SonarQube Analysis') {
+        steps {
+            script {
+                try {
+                    def scannerHome = tool 'SonarQubeScanner'
+                    withSonarQubeEnv() {
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
+                } catch (Exception e) {
+                    currentBuild.result = 'UNSTABLE'
+                    error("SonarQube analysis failed: ${e.message}")
                 }
             }
         }
+    }
+}
