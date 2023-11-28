@@ -1,27 +1,15 @@
 pipeline {
     agent any
 
-    stages {
-        stage('SCM') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    try {
-                        def scannerHome = tool 'SonarQubeScanner'
-                        withSonarQubeEnv() {
-                            sh "${scannerHome}/bin/sonar-scanner"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'UNSTABLE'
-                        error("SonarQube analysis failed: ${e.message}")
-                    }
-                }
-            }
-        }
+    node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('SonarQube Analysis') {
+    def mvn = tool 'Default Maven';
+    withSonarQubeEnv() {
+      sh "${mvn}/bin/mvn sonar:sonar"
     }
+  }
+}
 }
