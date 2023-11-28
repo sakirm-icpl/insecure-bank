@@ -13,7 +13,7 @@ pipeline {
                 script {
                     def mvn = tool 'Default Maven'
                     withSonarQubeEnv() {
-                        sh "${mvn}/bin/mvn sonar:sonar -Dsonar.java.binaries=target/classes"
+                        sh "${mvn}/bin/mvn clean compile sonar:sonar"
                     }
                 }
             }
