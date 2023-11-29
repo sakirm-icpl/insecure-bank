@@ -51,7 +51,7 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 script {
-                    def AUTH_KEY = '30ab024715c8afb510f73325331535ad30f6c7d2828d64b59f5e35a66b420029'
+                    def AUTH_KEY = '49c96a8cd10dd792c9103344498194b5ee00fdaa534db0c57acff4a56da96bb3'
                     def dashboardUrls = []
                     def pdfurls = []
 
