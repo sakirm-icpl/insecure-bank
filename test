@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+    environment {
+        INPUT_LOCATION = "${WORKSPACE}/${appdir}"
+        MOBSF_BASE_URL = 'http://172.17.16.42:8000'
+        def repoDir = 'insecure-bank'
+        def convertDir = 'script'
+        def appdir = 'Application'
+    }
+    stages {
+        stage('SCM') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def mvn = tool 'Default Maven';
+                    withSonarQubeEnv() {
+                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Test"
+                    }
+                }
+            }
+        }
+        stage('Clone Application Code') {
+            steps {
+                script {
+                    catchError(buildResult: 'SUCCESS') {
+                        if (!fileExists(repoDir)) {
+                            sh "git clone https://github.com/gizalig-icpl/insecure-bank.git ${repoDir}"
+                            sh "git clone https://github.com/gizalig-icpl/Convert.git ${convertDir}"
+                            sh "git clone https://github.com/gizalig-icpl/Application.git ${appdir}"
+                            sh "mobsfscan insecure-bank/ --json -o ${repoDir}-Reference.json"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Convert file') {
+            steps {
+                script {
+                    catchError(buildResult: 'SUCCESS') {
+                        sh "chmod -R 777 ${WORKSPACE}/${convertDir}"
+                        sh "python3 ${convertDir}/script.py ${WORKSPACE}/${repoDir}-Reference.json"
+                        echo "Download Reference file: $BUILD_URL/execution/node/3/ws/${repoDir}-Reference.xlsx"
+                    }
+                }
+            }
+        }
+        stage('Static Analysis') {
+            steps {
+                script {
+                    def AUTH_KEY = '30ab024715c8afb510f73325331535ad30f6c7d2828d64b59f5e35a66b420029'
+                    def dashboardUrls = []
+                    def pdfurls = []
+
+                    dir(INPUT_LOCATION) {
+                        files = findFiles(glob: '*.*')
+                        files.each { f ->
+                            def upload_cmd = "curl -s -S -F 'file=@${INPUT_LOCATION}/${f}' ${MOBSF_BASE_URL}/api/v1/upload -H 'Authorization:${AUTH_KEY}'"
+                            def upload_result = sh(label: 'Upload Binary', returnStdout: true, script: upload_cmd)
+
+                            def response_map = readJSON text: upload_result.trim()
+                            def app_type = response_map["scan_type"]
+                            def app_hash = response_map["hash"]
+                            def app_name = response_map["file_name"]
+                            def scan_id = response_map["scan_id"]
+
+                            def scan_start_cmd = "curl -s -S -X POST --url ${MOBSF_BASE_URL}/api/v1/scan --data 'scan_type=${app_type}&file_name=${app_name}&hash=${app_hash}' -H 'Authorization:${AUTH_KEY}'"
+                            sh label: 'Start Scan of Binary', returnStdout: true, script: scan_start_cmd
+
+                            def dashboardUrl = "${MOBSF_BASE_URL}/recent_scans/"
+                            dashboardUrls.add(dashboardUrl)
+
+                            def pdfurl = "${MOBSF_BASE_URL}/pdf/${app_hash}/"
+                            pdfurls.add(pdfurl)
+                        }
+                    }
+
+                    echo "MOBSF Dashboard URLs:"
+                    dashboardUrls.each { url ->
+                        echo url
+                    }
+
+                    echo "PDF Dashboard URLs:"
+                    pdfurls.each { url ->
+                        echo url
+                    }
+                }
+            }
+        }
+        stage('TearDown') {
+            steps {
+                script {
+                    dir(INPUT_LOCATION) {
+                        files = findFiles(glob: '*.*')
+                        files.each { f ->
+                            sh "sudo qark --apk ${INPUT_LOCATION}/${f} || true"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
