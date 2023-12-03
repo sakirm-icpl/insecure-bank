@@ -6,6 +6,7 @@ pipeline {
         AKTO_API_KEY = "D4k5Yu2yOQZ3CAb24OS4aOSH5H2xSVQTv0TmZ21I"
         AKTO_TEST_ID = "656c6af2dcc1456143c94f45"
         AKTO_EXECUTABLE = "/usr/local/bin/akto"  // Replace with the actual full path
+        PATH = "/usr/local/bin:${env.PATH}"     // Add akto directory to the PATH
     }
 
     stages {
@@ -30,8 +31,8 @@ pipeline {
                     sh aktoStartCommand
 
                     // Debug information
-                    echo "Current directory: ${pwd()}"
-                    echo "List files: ${sh(script: 'ls -la', returnStdout: true).trim()}"
+                    echo "Current directory: \$(pwd)"
+                    echo "List files: \$(ls -la)"
                     echo "akto location: ${AKTO_EXECUTABLE}"
 
                     // Grant execute permission if needed
