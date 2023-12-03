@@ -34,6 +34,9 @@ pipeline {
                     echo "List files: ${sh(script: 'ls -la', returnStdout: true).trim()}"
                     echo "akto location: ${AKTO_EXECUTABLE}"
 
+                    // Grant execute permission if needed
+                    sh "chmod +x ${AKTO_EXECUTABLE}"
+
                     // Run your Akto tests with full path
                     sh "${AKTO_EXECUTABLE} run tests/api_tests.yaml"
                 }
