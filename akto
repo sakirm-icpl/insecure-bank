@@ -5,6 +5,7 @@ pipeline {
         AKTO_DASHBOARD_URL = "http://192.168.64.30:9090/"
         AKTO_API_KEY = "D4k5Yu2yOQZ3CAb24OS4aOSH5H2xSVQTv0TmZ21I"
         AKTO_TEST_ID = "656c6af2dcc1456143c94f45"
+        AKTO_EXECUTABLE = "/usr/local/bin/akto"  // Replace with the actual full path
     }
 
     stages {
@@ -28,8 +29,13 @@ pipeline {
                     """
                     sh aktoStartCommand
 
-                    // Run your Akto tests (replace this with the actual command)
-                    sh 'akto run tests/api_tests.yaml'
+                    // Debug information
+                    echo "Current directory: ${pwd()}"
+                    echo "List files: ${sh(script: 'ls -la', returnStdout: true).trim()}"
+                    echo "akto location: ${AKTO_EXECUTABLE}"
+
+                    // Run your Akto tests with full path
+                    sh "${AKTO_EXECUTABLE} run tests/api_tests.yaml"
                 }
             }
         }
