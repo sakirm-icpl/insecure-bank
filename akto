@@ -34,10 +34,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            // Optionally, you can perform cleanup or additional actions here
-        }
-    }
 }
