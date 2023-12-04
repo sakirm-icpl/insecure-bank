@@ -14,7 +14,7 @@ pipeline {
                 // Specify the release version in the URL
                 sh 'wget https://github.com/indranilokg/atko-cli/archive/refs/tags/0.0.3.tar.gz'
                 sh 'tar -zxvf 0.0.3.tar.gz'
-                sh 'sudo mv akto-cli-0.0.3 /usr/bin'
+                sh 'sudo mv atko-cli-0.0.3 /usr/bin'
             }
         }
 
