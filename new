@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone your repository
+                checkout scm
+            }
+        }
+
+        stage('Install Akto CLI') {
+            steps {
+                sh 'wget https://github.com/akto/akto/releases/latest/download/akto-cli-linux-amd64.tar.gz'
+                sh 'tar -zxvf akto-cli-linux-amd64.tar.gz'
+                sh 'sudo mv akto-cli /usr/bin'
+            }
+        }
+
+        stage('Set Akto API Key') {
+            steps {
+                environmentVariables {
+                    env AKTO_API_KEY='D4k5Yu2yOQZ3CAb24OS4aOSH5H2xSVQTv0TmZ21I'
+                }
+            }
+        }
+
+        stage('Run API tests') {
+            steps {
+                sh 'akto test'
+            }
+        }
+    }
+}
