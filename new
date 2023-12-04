@@ -2,6 +2,13 @@ pipeline {
     agent any
 
     stages {
+        stage('Debug') {
+            steps {
+                sh 'echo "PATH: $PATH"'
+                sh 'env'
+            }
+        }
+
         stage('Clone Repository') {
             steps {
                 // Clone your repository
@@ -13,14 +20,17 @@ pipeline {
             steps {
                 sh 'wget https://github.com/indranilokg/atko-cli/archive/refs/tags/0.0.3.tar.gz'
                 sh 'tar -zxvf 0.0.3.tar.gz'
-                sh 'sudo mv atko-cli-0.0.3 /usr/local/bin/akto/'
+                sh 'sudo mv atko-cli-0.0.3 /usr/local/bin/akto'
+                sh 'sudo chown jenkins:jenkins /usr/local/bin/akto'
+                sh 'akto version' // Test if akto is accessible
             }
         }
 
         stage('Set Akto API Key') {
             steps {
                 withEnv(["AKTO_API_KEY=D4k5Yu2yOQZ3CAb24OS4aOSH5H2xSVQTv0TmZ21I"]) {
-                    // Your other steps go here
+                    // You can also use the 'withCredentials' block for secure handling of sensitive information.
+                    // Refer to Jenkins documentation for more details.
                 }
             }
         }
