@@ -11,7 +11,8 @@ pipeline {
 
         stage('Install Akto CLI') {
             steps {
-                sh 'wget https://github.com/akto/akto/releases/latest/download/akto-cli-linux-amd64.tar.gz'
+                // Specify the release version in the URL
+                sh 'wget https://github.com/akto/akto/releases/download/vX.Y.Z/akto-cli-linux-amd64.tar.gz'
                 sh 'tar -zxvf akto-cli-linux-amd64.tar.gz'
                 sh 'sudo mv akto-cli /usr/bin'
             }
