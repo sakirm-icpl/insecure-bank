@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone your repository
+                checkout scm
+            }
+        }
+
+        stage('Install Akto CLI') {
+            steps {
+                sh '''
+                    # Download Akto CLI
+                    wget https://github.com/indranilokg/atko-cli/archive/refs/tags/0.0.3.tar.gz || exit 1
+
+                    # Verify download and extract
+                    if [ $? -ne 0 ]; then
+                        echo "Download failed!"
+                        exit 1
+                    fi
+                    sh 'tar -zxvf 0.0.3.tar.gz' || exit 1
+
+                    # Move binary and check permissions
+                    sh 'sudo mv atko-cli-0.0.3 /usr/local/bin/akto' || exit 1
+                    sh 'sudo chown jenkins:jenkins /usr/local/bin/akto' || exit 1
+
+                    # Optionally set PATH
+                    # export PATH=/path/to/akto/bin:$PATH
+
+                    # Verify akto version (optional)
+                    # akto --version || exit 1
+
+                    echo "Akto CLI installed successfully!"
+                '''
+            }
+        }
+
+        stage('Set Akto API Key') {
+            steps {
+                environmentVariables {
+                    env AKTO_API_KEY='D4k5Yu2yOQZ3CAb24OS4aOSH5H2xSVQTv0TmZ21I'
+                }
+            }
+        }
+
+        stage('Run API tests') {
+            steps {
+                sh 'akto test'
+            }
+        }
+    }
+}
