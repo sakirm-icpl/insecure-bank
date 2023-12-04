@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh 'wget https://github.com/indranilokg/atko-cli/archive/refs/tags/0.0.3.tar.gz'
                 sh 'tar -zxvf 0.0.3.tar.gz'
-                sh 'sudo mv atko-cli-0.0.3 /usr/bin'
+                sh 'sudo cp -r atko-cli-0.0.3 /usr/bin'
             }
         }
 
